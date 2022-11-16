@@ -1,0 +1,30 @@
+# Starter pipeline
+
+
+trigger:
+- none
+
+variables:
+  serverName: 'DENNISazpipedbdemosvr.database.windows.net'
+  varazuresubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
+  databaseName: 'DENNISazpipedbdemo'
+  SqlUsername: 'DENNISpcsadmin'
+  SqlPassword: 'fX^%a^074QuaDENNIS'
+  SqlFile: 'PCS_Workshop.sql'
+
+pool:
+  vmImage: windows-latest
+
+steps:
+
+  - task: SqlAzureDacpacDeployment@1
+    inputs:
+      azureSubscription: 'PCSDSM (6270c2d6-d30a-41ec-8edb-519b950de71b)'
+      AuthenticationType: 'server'
+      ServerName: $(serverName)
+      DatabaseName: $(databaseName)
+      SqlUsername: $(SqlUsername)
+      SqlPassword: $(SqlPassword)
+      deployType: 'SqlTask'
+      SqlFile: $(SqlFile)
+      IpDetectionMethod: 'AutoDetect'
