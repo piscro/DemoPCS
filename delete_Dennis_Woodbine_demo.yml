@@ -4,6 +4,8 @@
 # https://aka.ms/yaml
 
 
+trigger:
+- none
 
 variables:
   resourceGroupName: 'dennisdemoforpcs'
