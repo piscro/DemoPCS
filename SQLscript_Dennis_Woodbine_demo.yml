@@ -28,3 +28,4 @@ steps:
       deployType: 'SqlTask'
       SqlFile: $(SqlFile)
       IpDetectionMethod: 'AutoDetect'
+      AdditionalArguments: '/TargetTimeout:3600 /p:CommandTimeout=3600'
