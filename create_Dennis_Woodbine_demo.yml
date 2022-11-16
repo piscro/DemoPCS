@@ -1,0 +1,39 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- none
+
+variables:
+  resourceGroupName: 'dennisdemoforpcs'
+  location: 'eastUS'
+  templateFile: 'DennisWoodbine.bicep'
+  varazureSubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: AzureCLI@2
+  displayName: Preview Bicep Changes
+  inputs:
+    azureSubscription: $(varazureSubscription)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az --version
+      az group create --name $(resourceGroupName) --location $(location)
+      az deployment group what-if --resource-group $(resourceGroupName) \
+         --template-file $(templateFile) \
+- task: AzureCLI@2
+  displayName: Deploy Bicep To Azure
+  inputs:
+    azureSubscription: $(varazureSubscription)
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az deployment group create --resource-group $(resourceGroupName) \
+         --template-file $(templateFile) \
