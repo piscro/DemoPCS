@@ -5,10 +5,10 @@ trigger:
 - none
 
 variables:
-  serverName: 'DENNISazpipedbdemosvr.database.windows.net'
+  serverName: 'dennisazpipedbdemosvr.database.windows.net'
   varazuresubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
-  databaseName: 'DENNISazpipedbdemo'
-  SqlUsername: 'DENNISpcsadmin'
+  databaseName: 'dennisazpipedbdemo'
+  SqlUsername: 'dennispcsadmin'
   SqlPassword: 'fX^%a^074QuaDENNIS'
   SqlFile: 'PCS_Workshop.sql'
 
