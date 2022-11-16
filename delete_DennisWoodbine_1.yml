@@ -6,7 +6,7 @@
 
 
 variables:
-  resourceGroupName: 'DENNISdemoforpcs'
+  resourceGroupName: 'dennisdemoforpcs'
   varazuresubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
 
 pool:
