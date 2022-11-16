@@ -1,7 +1,7 @@
-param serverName string = 'DENNISazpipedbdemosvr'
-param sqlDBName string = 'DENNISazpipedbdemo'
+param serverName string = 'dennisazpipedbdemosvr'
+param sqlDBName string = 'dennisazpipedbdemo'
 param location string = 'eastus'
-param administratorLogin string = 'DENNISpcsadmin'
+param administratorLogin string = 'dennispcsadmin'
 param administratorLoginPassword string = 'fX^%a^074QuaDENNIS'
 
 resource sqlServer 'Microsoft.Sql/servers@2021-08-01-preview' = {
