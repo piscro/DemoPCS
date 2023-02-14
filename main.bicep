@@ -42,7 +42,7 @@ isHnsEnabled:true
 }
 
 resource blob 'Microsoft.Storage/storageAccounts/blobServices/container@2019-06-01' = [for storagename in containerNames: {
-name: '${stg.storageName}/default/${storagename}'
+name: '${stg.storagename}/default/${storagename}'
 }]
 
 output storagekey string = listKeys(resourceId('Microsft.Storage/storageAccounts',storagename),'2019-06-01').keys[0].value
