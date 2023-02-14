@@ -28,7 +28,7 @@ resource sqlDB 'Microsoft.Sql/servers/databases@2021-08-01-preview' = {
   }
 }
 
-resource stg 'Microsoft.Storage/storageAccount@2019-06-01' = {
+resource stg 'Microsoft.Storage/storageAccount@2022-09-01' = {
 name: storagename
 location: location
 kind: 'StorageV2'
@@ -41,11 +41,6 @@ isHnsEnabled:true
  }
 }
 
-resource blob 'Microsoft.Storage/storageAccounts/blobServices/container@2019-06-01' = [for storagename in containerNames: {
-name: '${stg.name}/default/${storagename}'
-}]
-
-output storagekey string = listKeys(resourceId('Microsft.Storage/storageAccounts',storagename),'2019-06-01').keys[0].value
 
 resource adf 'Microsoft.DataFactory/factories@2018-06-01' = {
 name: datafactoryname
