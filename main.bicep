@@ -1,8 +1,8 @@
 param serverName string = 'azpipedbdemosvr'
 param sqlDBName string = 'azpipedbdemo'
 param location string = 'eastus'
-param storagename string = 'pcsdatalakeDemo'
-param datafactoryname string = 'pcsdatafactoryDemo'
+param storagename string = 'pcsdatalakedemo'
+param datafactoryname string = 'pcsdatafactorydemo'
 param administratorLogin string = 'pcsadmin'
 param administratorLoginPassword string = 'fX^%a^074Qua'
 
