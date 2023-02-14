@@ -7,16 +7,6 @@ param administratorLogin string = 'pcsadmin'
 param administratorLoginPassword string = 'fX^%a^074Qua'
 
 
-@allowed([
-  'Standard_LRS'
-  'Standard_ZRS'
-  'Standard_GRS'
-  'Standard_GZRS'
-  'Standard_RAGRS'
-  'Standard_RAGZRS'
-  'Premium_LRS'
-  'Premium_ZRS'
-])
 
 @description('Storage SKU')
 param storageSkuName string = 'Standard_LRS'
