@@ -6,8 +6,17 @@ param datafactoryname string = 'pcsdatafactoryDemo'
 param administratorLogin string = 'pcsadmin'
 param administratorLoginPassword string = 'fX^%a^074Qua'
 
-@description('Tags to add to the resources')
-param tags object
+
+@allowed([
+  'Standard_LRS'
+  'Standard_ZRS'
+  'Standard_GRS'
+  'Standard_GZRS'
+  'Standard_RAGRS'
+  'Standard_RAGZRS'
+  'Premium_LRS'
+  'Premium_ZRS'
+])
 
 @description('Storage SKU')
 param storageSkuName string = 'Standard_LRS'
@@ -35,7 +44,6 @@ resource sqlDB 'Microsoft.Sql/servers/databases@2021-08-01-preview' = {
 resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: storagename
   location: location
-  tags: tags
   sku: {
     name: storageSkuName
   }
