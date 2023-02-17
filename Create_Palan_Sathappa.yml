@@ -7,7 +7,7 @@ trigger:
 - none
 
 variables:
-  resourceGroupName: 'demoforpcs'
+  resourceGroupName: 'DevopsResourceGroup'
   location: 'eastUS'
   templateFile: 'main.bicep'
   varazureSubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
