@@ -1,0 +1,3143 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "PCS-Dev-DF01"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/FocusCopy')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "List Tables",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "sqlReaderQuery": "select * from INFORMATION_SCHEMA.TABLES where table_type = 'base table' ;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "TableList_Focus",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "For Each Table",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "List Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('List Tables').output.value",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Export Table",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "SqlServerSource",
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "FCSSQLTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "TableName": "@item().table_name",
+                                                "SchemaName": "@item().table_schema"
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "FCSCSVTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SinkContainer": "input/FCS"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata1",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "FCSCSVTable",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                    "SinkContainer": "input/FCS"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "For Each File",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata1').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Copy2Output",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "FCSDelimitedText",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SourceContainer": "input/FCS",
+                                                "FileName": {
+                                                    "value": "@item().name",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "FCSCSVTableOut",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceContainer": "output/FCS",
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "FileName": "@replace(item().name,'dbo.','')"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata2",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each File",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "FCSCSVTableOut",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SourceContainer": "output/FCS",
+                                    "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                    "FileName": "@replace(item().name,'dbo.','')"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ForEach1",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata2').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Copy2DW",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "AzureSqlSink",
+                                            "writeBehavior": "insert",
+                                            "sqlWriterUseTableLock": false,
+                                            "disableMetricsCollection": false
+                                        },
+                                        "enableStaging": false,
+                                        "enableSkipIncompatibleRow": true,
+                                        "logSettings": {
+                                            "enableCopyActivityLog": true,
+                                            "copyActivityLogSettings": {
+                                                "logLevel": "Warning",
+                                                "enableReliableLogging": false
+                                            },
+                                            "logLocationSettings": {
+                                                "linkedServiceName": {
+                                                    "referenceName": "AzureDataLakeStorage1",
+                                                    "type": "LinkedServiceReference"
+                                                },
+                                                "path": "logging"
+                                            }
+                                        },
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "EDCSVTableOut2",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceContainer": "output/EDS",
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "FileName": {
+                                                    "value": "@item().name",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "AzureSqlDatabaseSinkDataset",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "sinkTableName": {
+                                                    "value": "@replace(item().name,'.csv','')",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Focus"
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-03-07T18:25:50Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/Temp_GradCohortData')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Heath playing around",
+                "activities": [
+                    {
+                        "name": "AAR_GradRequirementsMet_ByCohort",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "truncate table AAR_GradRequirementsMet_ByCohort",
+                                "writeBehavior": "insert",
+                                "sqlWriterUseTableLock": false,
+                                "tableOption": "autoCreate",
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Student_id",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Student_id",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LocalStuID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "LocalStuID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FLEID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "FLEID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SchoolName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "SchoolName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EAS_Second_School",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "EAS_Second_School",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "YrEnterHS",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "YrEnterHS",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LastName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "LastName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FirstName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "FirstName",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Grade",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Grade",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EthnicCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "EthnicCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Gender",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Gender",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LEP",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "LEP",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FRL",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "FRL",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "PriExc",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "PriExc",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "CASEMGR",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "CASEMGR",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Eligible504",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Eligible504",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Counselor",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Counselor",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SmallLearningCommunity",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "SmallLearningCommunity",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "AssignCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "AssignCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SPECCODE",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "SPECCODE",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LeaveCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "LeaveCode",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LeaveDate",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "LeaveDate",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "INSTRSET",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "INSTRSET",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "GradOption",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "GradOption",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "UNWTDCUMMGPA1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "UNWTDCUMMGPA1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "CREDATMPT",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "CREDATMPT",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "CREDEARNED",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "CREDEARNED",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "TotalCreditsEarned",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "TotalCreditsEarned",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "USGovernmentCredits_NeedHalf",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "USGovernmentCredits_NeedHalf",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EconomicsCredits_NeedHalf",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "EconomicsCredits_NeedHalf",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EnglishCredits_Need4",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "EnglishCredits_Need4",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "MathCredits_Need2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "MathCredits_Need2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "AlgebraCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "AlgebraCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "GeometryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "GeometryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "IND_Credits_SubMathSci",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "IND_Credits_SubMathSci",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ScienceEQCredits_Need2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ScienceEQCredits_Need2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "BiologyCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "BiologyCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "USHistoryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "USHistoryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "WorldHistoryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "WorldHistoryCredits_Need1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ArtsCredits_Need1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "ArtsCredits_Need1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ForeignLanguageCredits_Need2forCollege",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ForeignLanguageCredits_Need2forCollege",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "PECredits_Need0",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "PECredits_Need0",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "HopeCredits_Need1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "HopeCredits_Need1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "LifeMgmtSkills_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "LifeMgmtSkills_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "VocationalCredits_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "VocationalCredits_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ElectiveCredits_Need8",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ElectiveCredits_Need8",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Online_TotalCredits_NeedHalf",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Online_TotalCredits_NeedHalf",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "MetIConline",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "MetIConline",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "NonCredits_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "NonCredits_Need0",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSA_ELA_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSA_ELA_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ELA_Waiver",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "ELA_Waiver",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EL_ELA_Waiver",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "EL_ELA_Waiver",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "EL_ELA_Waiver_Eligible",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "EL_ELA_Waiver_Eligible",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ACT_EngReadAVG18_Results",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ACT_EngReadAVG18_Results",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SAT_EBRW480_Results",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "SAT_EBRW480_Results",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SAT_EBRW480_Attempts",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "SAT_EBRW480_Attempts",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ELA_MET",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ELA_MET",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ALG_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ALG_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ALGBEST_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ALGBEST_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ALG_Waiver",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "ALG_Waiver",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "GEO_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "GEO_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "GEOBEST_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "GEOBEST_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Bio_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "Bio_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "US_Hist_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "US_Hist_EOC_PassFail",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ACT_Attempts_Math16plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ACT_Attempts_Math16plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ACT_Pass_Math16plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ACT_Pass_Math16plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SAT_Attempts_Math_420plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "SAT_Attempts_Math_420plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SAT_Pass_Math_420plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "SAT_Pass_Math_420plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "PSAT_Attempts_Math_430plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "PSAT_Attempts_Math_430plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "PSAT_Pass_Math_430plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "PSAT_Pass_Math_430plus",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ALG_MET",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "ALG_MET",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Attempts_Gr10ELA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Attempts_Gr10ELA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Pass_Gr10ELA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Pass_Gr10ELA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Attempts_ALG1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Attempts_ALG1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Pass_ALG1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Pass_ALG1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Attempts_GEO",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Attempts_GEO",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSAA_Pass_Geo",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "FSAA_Pass_Geo",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_01_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_01_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_01_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_01_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_01_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_01_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_02_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_02_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_02_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_02_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_02_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_02_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_03_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_03_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_03_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_03_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_03_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_03_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_04_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_04_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_04_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_04_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_04_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_04_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_05_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_05_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_05_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_05_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_05_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_05_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_06_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_06_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_06_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_06_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_06_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_06_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_07_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_07_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_07_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_07_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_07_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_07_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_08_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_08_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_08_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_08_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_08_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_08_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_09_S1",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_09_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_09_S1",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Period_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Period_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_PercentGrade_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_PercentGrade_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Course_Grade_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Course_Grade_09_S2",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Absence_Period_09_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "Absence_Period_09_S2",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "MET_Accelerated",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "MET_Accelerated",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "abs_rate",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        },
+                                        "sink": {
+                                            "name": "abs_rate",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 7
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "abs_all",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        },
+                                        "sink": {
+                                            "name": "abs_all",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 0,
+                                            "precision": 18
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "OnTrack",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "OnTrack",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Warning",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Warning",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_AAR_GradRequirementsMet_ByCohort",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "AAR_GradRequirementsMet_ByCohort",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "RS_Graduation_Cohort_Report",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "AzureSqlSink",
+                                "preCopyScript": "truncate table RS_Graduation_Cohort_Report",
+                                "writeBehavior": "insert",
+                                "sqlWriterUseTableLock": false,
+                                "disableMetricsCollection": false
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "mappings": [
+                                    {
+                                        "source": {
+                                            "name": "Yr Ent HS",
+                                            "type": "Int32",
+                                            "physicalType": "int"
+                                        },
+                                        "sink": {
+                                            "name": "Yr Ent HS",
+                                            "type": "Int32",
+                                            "physicalType": "int"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SchlNum",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "SchlNum",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Student ID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Student ID",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Student Name",
+                                            "type": "String",
+                                            "physicalType": "nvarchar"
+                                        },
+                                        "sink": {
+                                            "name": "Student Name",
+                                            "type": "String",
+                                            "physicalType": "nvarchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Gnd",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Gnd",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "R",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "R",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Meets Accel",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Meets Accel",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "WD Code",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "WD Code",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Inst",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Inst",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "9th ESE",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "9th ESE",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FTE ELL Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "FTE ELL Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Curr ELL Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Curr ELL Status",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "SLC",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "SLC",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Gr",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Gr",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "FSA Rd",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "FSA Rd",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "AlgEOC",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "AlgEOC",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "GPA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 9
+                                        },
+                                        "sink": {
+                                            "name": "GPA",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 4,
+                                            "precision": 9
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Read Admin Gr",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Read Admin Gr",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "ACCESS RD/OA",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "ACCESS RD/OA",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tot Ct Att",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 2,
+                                            "precision": 9
+                                        },
+                                        "sink": {
+                                            "name": "Tot Ct Att",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 2,
+                                            "precision": 9
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Tot Cr Ern",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 2,
+                                            "precision": 9
+                                        },
+                                        "sink": {
+                                            "name": "Tot Cr Ern",
+                                            "type": "Decimal",
+                                            "physicalType": "decimal",
+                                            "scale": 2,
+                                            "precision": 9
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "At Risk",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "At Risk",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Grad On Track",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Grad On Track",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Con. Sc R",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Con. Sc R",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "Con. Sc M",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        },
+                                        "sink": {
+                                            "name": "Con. Sc M",
+                                            "type": "String",
+                                            "physicalType": "varchar"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "last_updated",
+                                            "type": "DateTime",
+                                            "physicalType": "datetime"
+                                        },
+                                        "sink": {
+                                            "name": "last_updated",
+                                            "type": "DateTime",
+                                            "physicalType": "datetime"
+                                        }
+                                    },
+                                    {
+                                        "source": {
+                                            "name": "imported",
+                                            "type": "DateTime",
+                                            "physicalType": "datetime"
+                                        },
+                                        "sink": {
+                                            "name": "imported",
+                                            "type": "DateTime",
+                                            "physicalType": "datetime"
+                                        }
+                                    }
+                                ],
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_RS_Graduation_Cohort_Report",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "RS_Graduation_Cohort_Report",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-03-09T16:04:48Z"
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortPL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "CohortReqMet",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".csv"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_AAR_GradRequirementsMet_ByCohort",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "CohortSCVTable",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SinkContainer": "input/COHORT",
+                                    "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "CohortReport",
+                        "type": "Copy",
+                        "dependsOn": [
+                            {
+                                "activity": "CohortReqMet",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".csv"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_RS_Graduation_Cohort_Report",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "CohortSCVTable",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SinkContainer": "input/COHORT",
+                                    "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Cohort"
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-03-17T11:10:37Z"
+            },
+            "dependsOn": []
+        }
+    ]
+}

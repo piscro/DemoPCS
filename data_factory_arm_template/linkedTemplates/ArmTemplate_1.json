@@ -1,0 +1,3397 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "PCS-Dev-DF01"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/AAR_GradRequirementsMet_ByCohort')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "DataWarehouse",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student_id",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "LocalStuID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FLEID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SchoolName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EAS_Second_School",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "YrEnterHS",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Grade",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EthnicCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Gender",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LEP",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FRL",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "PriExc",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CASEMGR",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Eligible504",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Counselor",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SmallLearningCommunity",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AssignCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SPECCODE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveDate",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "INSTRSET",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GradOption",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "UNWTDCUMMGPA1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CREDATMPT",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CREDEARNED",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "TotalCreditsEarned",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "USGovernmentCredits_NeedHalf",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EconomicsCredits_NeedHalf",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EnglishCredits_Need4",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "MathCredits_Need2",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "AlgebraCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "GeometryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "IND_Credits_SubMathSci",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ScienceEQCredits_Need2",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "BiologyCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "USHistoryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "WorldHistoryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ArtsCredits_Need1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ForeignLanguageCredits_Need2forCollege",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PECredits_Need0",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "HopeCredits_Need1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LifeMgmtSkills_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "VocationalCredits_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ElectiveCredits_Need8",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Online_TotalCredits_NeedHalf",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MetIConline",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "NonCredits_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSA_ELA_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ELA_Waiver",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EL_ELA_Waiver",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EL_ELA_Waiver_Eligible",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ACT_EngReadAVG18_Results",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_EBRW480_Results",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_EBRW480_Attempts",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ELA_MET",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALGBEST_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_Waiver",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GEO_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "GEOBEST_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Bio_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "US_Hist_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ACT_Attempts_Math16plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ACT_Pass_Math16plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_Attempts_Math_420plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_Pass_Math_420plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PSAT_Attempts_Math_430plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PSAT_Pass_Math_430plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_MET",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_Gr10ELA",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_Gr10ELA",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_ALG1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_ALG1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_GEO",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_Geo",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Course_Period_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_01_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_01_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_02_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_02_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_03_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_03_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_04_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_04_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_05_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_05_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_06_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_06_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_07_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_07_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_08_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_08_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_09_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_09_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "MET_Accelerated",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "abs_rate",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "abs_all",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "OnTrack",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Warning",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "AAR_GradRequirementsMet_ByCohort"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FCSCSVTableOut2')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/FCS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FCSCSVTableOut')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/FCS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "FileName": {
+                        "type": "string",
+                        "defaultValue": "@replace(item().name,'dbo.','')"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FCSCSVTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SinkDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "SinkContainer": {
+                        "type": "string",
+                        "defaultValue": "input/EDS"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().SinkDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SinkContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FCSDelimitedText')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "input/FCS"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/RS_Graduation_Cohort_Report')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "DataWarehouse",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [
+                    {
+                        "name": "Yr Ent HS",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SchlNum",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student ID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student Name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "Gnd",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "R",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Meets Accel",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "WD Code",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Inst",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "9th ESE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FTE ELL Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Curr ELL Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SLC",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Gr",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FSA Rd",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AlgEOC",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GPA",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Read Admin Gr",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ACCESS RD/OA",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Tot Ct Att",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 2
+                    },
+                    {
+                        "name": "Tot Cr Ern",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 2
+                    },
+                    {
+                        "name": "At Risk",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Grad On Track",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Con. Sc R",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Con. Sc M",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "last_updated",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "RS_Graduation_Cohort_Report"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortSCVTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SinkContainer": {
+                        "type": "string",
+                        "defaultValue": "Input/COHORT"
+                    },
+                    "SinkDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().SinkDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SinkContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortTestSink')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "COHORT",
+                        "fileSystem": "input"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/dataflow1')]",
+            "type": "Microsoft.DataFactory/factories/dataflows",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "MappingDataFlow",
+                "typeProperties": {
+                    "sources": [
+                        {
+                            "dataset": {
+                                "referenceName": "EDCSVTableOut2",
+                                "type": "DatasetReference"
+                            },
+                            "name": "source1"
+                        }
+                    ],
+                    "sinks": [
+                        {
+                            "dataset": {
+                                "referenceName": "AzureSqlDatabaseSinkDataset",
+                                "type": "DatasetReference"
+                            },
+                            "name": "sink1"
+                        }
+                    ],
+                    "transformations": [],
+                    "scriptLines": [
+                        "source(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     inferDriftedColumnTypes: true,",
+                        "     ignoreNoFilesFound: false) ~> source1",
+                        "source1 sink(allowSchemaDrift: true,",
+                        "     validateSchema: false,",
+                        "     deletable:false,",
+                        "     insertable:true,",
+                        "     updateable:false,",
+                        "     upsertable:false,",
+                        "     format: 'table',",
+                        "     skipDuplicateMapInputs: true,",
+                        "     skipDuplicateMapOutputs: true,",
+                        "     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+                    ]
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TableList')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "SqlServer1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SQLTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "SqlServer1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "TableName": {
+                        "type": "string"
+                    },
+                    "SchemaName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/op_AAR_GradRequirementsMet_ByCohort')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "SqlServer1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [
+                    {
+                        "name": "Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student_id",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "LocalStuID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FLEID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SchoolName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EAS_Second_School",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "YrEnterHS",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LastName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FirstName",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Grade",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EthnicCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Gender",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LEP",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FRL",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "PriExc",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "CASEMGR",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Eligible504",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Counselor",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SmallLearningCommunity",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AssignCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SPECCODE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveCode",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LeaveDate",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "INSTRSET",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GradOption",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "UNWTDCUMMGPA1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CREDATMPT",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "CREDEARNED",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "TotalCreditsEarned",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "USGovernmentCredits_NeedHalf",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EconomicsCredits_NeedHalf",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EnglishCredits_Need4",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "MathCredits_Need2",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "AlgebraCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "GeometryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "IND_Credits_SubMathSci",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ScienceEQCredits_Need2",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "BiologyCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "USHistoryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "WorldHistoryCredits_Need1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ArtsCredits_Need1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ForeignLanguageCredits_Need2forCollege",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PECredits_Need0",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "HopeCredits_Need1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "LifeMgmtSkills_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "VocationalCredits_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ElectiveCredits_Need8",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Online_TotalCredits_NeedHalf",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "MetIConline",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "NonCredits_Need0",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSA_ELA_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ELA_Waiver",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "EL_ELA_Waiver",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "EL_ELA_Waiver_Eligible",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ACT_EngReadAVG18_Results",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_EBRW480_Results",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_EBRW480_Attempts",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ELA_MET",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALGBEST_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_Waiver",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GEO_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "GEOBEST_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Bio_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "US_Hist_EOC_PassFail",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ACT_Attempts_Math16plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ACT_Pass_Math16plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_Attempts_Math_420plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "SAT_Pass_Math_420plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PSAT_Attempts_Math_430plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "PSAT_Pass_Math_430plus",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "ALG_MET",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_Gr10ELA",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_Gr10ELA",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_ALG1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_ALG1",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Attempts_GEO",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "FSAA_Pass_Geo",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Course_Period_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_01_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_01_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_01_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_01_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_02_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_02_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_02_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_02_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_03_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_03_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_03_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_03_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_04_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_04_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_04_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_04_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_05_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_05_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_05_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_05_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_06_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_06_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_06_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_06_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_07_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_07_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_07_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_07_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_08_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_08_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_08_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_08_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_09_S1",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_09_S1",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "Course_Period_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_PercentGrade_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Course_Grade_09_S2",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Absence_Period_09_S2",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "MET_Accelerated",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "abs_rate",
+                        "type": "decimal",
+                        "precision": 7,
+                        "scale": 4
+                    },
+                    {
+                        "name": "abs_all",
+                        "type": "decimal",
+                        "precision": 18,
+                        "scale": 0
+                    },
+                    {
+                        "name": "OnTrack",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Warning",
+                        "type": "varchar"
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "AAR_GradRequirementsMet_ByCohort"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TableList_Focus')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "PCS_FocusDB",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/FCSSQLTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "PCS_FocusDB",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "TableName": {
+                        "type": "string",
+                        "defaultValue": "@item().table_name"
+                    },
+                    "SchemaName": {
+                        "type": "string",
+                        "defaultValue": "@item().table_schema"
+                    }
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/op_RS_Graduation_Cohort_Report')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "SqlServer1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [
+                    {
+                        "name": "Yr Ent HS",
+                        "type": "int",
+                        "precision": 10
+                    },
+                    {
+                        "name": "SchlNum",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student ID",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Student Name",
+                        "type": "nvarchar"
+                    },
+                    {
+                        "name": "Gnd",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "R",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Meets Accel",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "WD Code",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Inst",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "9th ESE",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FTE ELL Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Curr ELL Status",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "SLC",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Gr",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "FSA Rd",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "AlgEOC",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "GPA",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 4
+                    },
+                    {
+                        "name": "Read Admin Gr",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "ACCESS RD/OA",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Tot Ct Att",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 2
+                    },
+                    {
+                        "name": "Tot Cr Ern",
+                        "type": "decimal",
+                        "precision": 9,
+                        "scale": 2
+                    },
+                    {
+                        "name": "At Risk",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Grad On Track",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Con. Sc R",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "Con. Sc M",
+                        "type": "varchar"
+                    },
+                    {
+                        "name": "last_updated",
+                        "type": "datetime",
+                        "precision": 23,
+                        "scale": 3
+                    }
+                ],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "RS_Graduation_Cohort_Report"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortTablesOnPrem')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CohortDB_Copy",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "CohortDB_Copy",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "TableName": {
+                        "type": "string"
+                    },
+                    "SchemaName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "SqlServerTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": {
+                        "value": "@dataset().SchemaName",
+                        "type": "Expression"
+                    },
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSPL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "List Tables",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "sqlReaderQuery": "select * from INFORMATION_SCHEMA.TABLES where table_type = 'base table' ;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "TableList",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "For Each Table",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "List Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('List Tables').output.value",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Export Table",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "SqlServerSource",
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "SQLTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "TableName": {
+                                                    "value": "@item().table_name",
+                                                    "type": "Expression"
+                                                },
+                                                "SchemaName": {
+                                                    "value": "@item().table_schema",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "EDSCSVTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SinkContainer": "input/EDS"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata1",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "EDSCSVTable",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                    "SinkContainer": "input/EDS"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "For Each File",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata1').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Copy2Output",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "DelimitedText1",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SourceContainer": "input/EDS",
+                                                "FileName": {
+                                                    "value": "@item().name",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "EDSCSVTableOut",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceContainer": "output/EDS",
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "FileName": {
+                                                    "value": "@replace(item().name,'dbo.','')",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata2",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each File",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "EDSCSVTableOut2",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SourceContainer": "output/EDS",
+                                    "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ForEach1",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata2').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Copy2DW",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "AzureSqlSink",
+                                            "writeBehavior": "insert",
+                                            "sqlWriterUseTableLock": false,
+                                            "disableMetricsCollection": false
+                                        },
+                                        "enableStaging": false,
+                                        "enableSkipIncompatibleRow": true,
+                                        "logSettings": {
+                                            "enableCopyActivityLog": true,
+                                            "copyActivityLogSettings": {
+                                                "logLevel": "Warning",
+                                                "enableReliableLogging": false
+                                            },
+                                            "logLocationSettings": {
+                                                "linkedServiceName": {
+                                                    "referenceName": "AzureDataLakeStorage1",
+                                                    "type": "LinkedServiceReference"
+                                                },
+                                                "path": "logging"
+                                            }
+                                        },
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "EDCSVTableOut2",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceContainer": "output/EDS",
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "FileName": {
+                                                    "value": "@item().name",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "AzureSqlDatabaseSinkDataset",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "sinkTableName": {
+                                                    "value": "@replace(item().name,'.csv','')",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "EDS"
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-02-21T21:25:56Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/TableList')]",
+                "[concat(variables('factoryId'), '/datasets/SQLTable')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TestDataFlowPL')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "List Tables",
+                        "type": "Lookup",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "sqlReaderQuery": "select Top 2 * from INFORMATION_SCHEMA.TABLES where table_type = 'base table' ;",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "dataset": {
+                                "referenceName": "TableList",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            },
+                            "firstRowOnly": false
+                        }
+                    },
+                    {
+                        "name": "For Each Table",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "List Tables",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('List Tables').output.value",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Export Table",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "SqlServerSource",
+                                            "queryTimeout": "02:00:00",
+                                            "partitionOption": "None"
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "SQLTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "TableName": {
+                                                    "value": "@item().table_name",
+                                                    "type": "Expression"
+                                                },
+                                                "SchemaName": {
+                                                    "value": "@item().table_schema",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "EDSCSVTable",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SinkContainer": "input/EDS"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata1",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each Table",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "EDSCSVTable",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SinkDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                    "SinkContainer": "input/EDS"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "For Each File",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata1",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata1').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "Copy2Output",
+                                    "type": "Copy",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "source": {
+                                            "type": "DelimitedTextSource",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSReadSettings",
+                                                "recursive": true,
+                                                "enablePartitionDiscovery": false
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextReadSettings"
+                                            }
+                                        },
+                                        "sink": {
+                                            "type": "DelimitedTextSink",
+                                            "storeSettings": {
+                                                "type": "AzureBlobFSWriteSettings"
+                                            },
+                                            "formatSettings": {
+                                                "type": "DelimitedTextWriteSettings",
+                                                "quoteAllText": true,
+                                                "fileExtension": ".csv"
+                                            }
+                                        },
+                                        "enableStaging": false,
+                                        "translator": {
+                                            "type": "TabularTranslator",
+                                            "typeConversion": true,
+                                            "typeConversionSettings": {
+                                                "allowDataTruncation": true,
+                                                "treatBooleanAsNumber": false
+                                            }
+                                        }
+                                    },
+                                    "inputs": [
+                                        {
+                                            "referenceName": "DelimitedText1",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "SourceContainer": "input/EDS",
+                                                "FileName": {
+                                                    "value": "@item().name",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    "outputs": [
+                                        {
+                                            "referenceName": "EDSCSVTableOut",
+                                            "type": "DatasetReference",
+                                            "parameters": {
+                                                "SourceContainer": "output/EDS",
+                                                "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                "FileName": {
+                                                    "value": "@replace(item().name,'dbo.','')",
+                                                    "type": "Expression"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "Get Metadata2",
+                        "type": "GetMetadata",
+                        "dependsOn": [
+                            {
+                                "activity": "For Each File",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "dataset": {
+                                "referenceName": "EDSCSVTableOut2",
+                                "type": "DatasetReference",
+                                "parameters": {
+                                    "SourceContainer": "output/EDS",
+                                    "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                                }
+                            },
+                            "fieldList": [
+                                "childItems"
+                            ],
+                            "storeSettings": {
+                                "type": "AzureBlobFSReadSettings",
+                                "recursive": true,
+                                "enablePartitionDiscovery": false
+                            },
+                            "formatSettings": {
+                                "type": "DelimitedTextReadSettings"
+                            }
+                        }
+                    },
+                    {
+                        "name": "ForEach1",
+                        "type": "ForEach",
+                        "dependsOn": [
+                            {
+                                "activity": "Get Metadata2",
+                                "dependencyConditions": [
+                                    "Succeeded"
+                                ]
+                            }
+                        ],
+                        "userProperties": [],
+                        "typeProperties": {
+                            "items": {
+                                "value": "@activity('Get Metadata2').output.childItems",
+                                "type": "Expression"
+                            },
+                            "activities": [
+                                {
+                                    "name": "dataflow1",
+                                    "type": "ExecuteDataFlow",
+                                    "dependsOn": [],
+                                    "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                    },
+                                    "userProperties": [],
+                                    "typeProperties": {
+                                        "dataflow": {
+                                            "referenceName": "dataflow1",
+                                            "type": "DataFlowReference",
+                                            "parameters": {},
+                                            "datasetParameters": {
+                                                "source1": {
+                                                    "SourceContainer": "output/EDS",
+                                                    "SourceDirectory": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')",
+                                                    "FileName": {
+                                                        "value": "@item().name",
+                                                        "type": "Expression"
+                                                    }
+                                                },
+                                                "sink1": {
+                                                    "sinkTableName": "@replace(item().name,'.csv','')"
+                                                }
+                                            }
+                                        },
+                                        "staging": {},
+                                        "compute": {
+                                            "coreCount": 8,
+                                            "computeType": "General"
+                                        },
+                                        "traceLevel": "Fine"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-02-18T12:53:47Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/TableList')]",
+                "[concat(variables('factoryId'), '/datasets/SQLTable')]",
+                "[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/pipeline1')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "CohortReport",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".csv"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_RS_Graduation_Cohort_Report",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "CohortTestSink",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    },
+                    {
+                        "name": "CohortReqMet",
+                        "type": "Copy",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "typeProperties": {
+                            "source": {
+                                "type": "SqlServerSource",
+                                "queryTimeout": "02:00:00",
+                                "partitionOption": "None"
+                            },
+                            "sink": {
+                                "type": "DelimitedTextSink",
+                                "storeSettings": {
+                                    "type": "AzureBlobFSWriteSettings"
+                                },
+                                "formatSettings": {
+                                    "type": "DelimitedTextWriteSettings",
+                                    "quoteAllText": true,
+                                    "fileExtension": ".csv"
+                                }
+                            },
+                            "enableStaging": false,
+                            "translator": {
+                                "type": "TabularTranslator",
+                                "typeConversion": true,
+                                "typeConversionSettings": {
+                                    "allowDataTruncation": true,
+                                    "treatBooleanAsNumber": false
+                                }
+                            }
+                        },
+                        "inputs": [
+                            {
+                                "referenceName": "op_AAR_GradRequirementsMet_ByCohort",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ],
+                        "outputs": [
+                            {
+                                "referenceName": "CohortTestSink",
+                                "type": "DatasetReference",
+                                "parameters": {}
+                            }
+                        ]
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "Test"
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-03-17T10:58:46Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/datasets/op_RS_Graduation_Cohort_Report')]",
+                "[concat(variables('factoryId'), '/datasets/CohortTestSink')]",
+                "[concat(variables('factoryId'), '/datasets/op_AAR_GradRequirementsMet_ByCohort')]"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,864 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "type": "string",
+            "metadata": "Data Factory name",
+            "defaultValue": "PCS-Dev-DF01"
+        },
+        "DataWarehouse_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'DataWarehouse'"
+        },
+        "SqlServer1_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'SqlServer1'"
+        },
+        "PCS_FocusDB_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'PCS_FocusDB'"
+        },
+        "CohortDB_Copy_connectionString": {
+            "type": "secureString",
+            "metadata": "Secure string for 'connectionString' of 'CohortDB_Copy'"
+        },
+        "AzureDataLakeStorage1_properties_typeProperties_url": {
+            "type": "string",
+            "defaultValue": "https://pcsdevstorage01.dfs.core.windows.net/"
+        },
+        "KeyVaultLS_properties_typeProperties_baseUrl": {
+            "type": "string",
+            "defaultValue": "https://PcsDevKV.vault.azure.net/"
+        }
+    },
+    "variables": {
+        "factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('factoryName'), '/PCSOnPrem')]",
+            "type": "Microsoft.DataFactory/factories/integrationRuntimes",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "type": "SelfHosted",
+                "typeProperties": {}
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureBlobFS",
+                "typeProperties": {
+                    "url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DataWarehouse')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureSqlDatabase",
+                "typeProperties": {
+                    "connectionString": "[parameters('DataWarehouse_connectionString')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/KeyVaultLS')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "AzureKeyVault",
+                "typeProperties": {
+                    "baseUrl": "[parameters('KeyVaultLS_properties_typeProperties_baseUrl')]"
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/10PM')]",
+            "type": "Microsoft.DataFactory/factories/triggers",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "runtimeState": "Stopped",
+                "pipelines": [],
+                "type": "ScheduleTrigger",
+                "typeProperties": {
+                    "recurrence": {
+                        "frequency": "Day",
+                        "interval": 1,
+                        "startTime": "2023-03-07T22:00:00",
+                        "timeZone": "Eastern Standard Time",
+                        "schedule": {
+                            "minutes": [
+                                0
+                            ],
+                            "hours": [
+                                22
+                            ]
+                        }
+                    }
+                }
+            },
+            "dependsOn": []
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SqlServer1')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "SqlServer",
+                "typeProperties": {
+                    "connectionString": "[parameters('SqlServer1_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "PCSOnPrem",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/PCSOnPrem')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/PCS_FocusDB')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "SqlServer",
+                "typeProperties": {
+                    "connectionString": "[parameters('PCS_FocusDB_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "PCSOnPrem",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/PCSOnPrem')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/CohortDB_Copy')]",
+            "type": "Microsoft.DataFactory/factories/linkedServices",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "annotations": [],
+                "type": "SqlServer",
+                "typeProperties": {
+                    "connectionString": "[parameters('CohortDB_Copy_connectionString')]"
+                },
+                "connectVia": {
+                    "referenceName": "PCSOnPrem",
+                    "type": "IntegrationRuntimeReference"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/integrationRuntimes/PCSOnPrem')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/TestTruncateTables')]",
+            "type": "Microsoft.DataFactory/factories/pipelines",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "activities": [
+                    {
+                        "name": "Script1",
+                        "type": "Script",
+                        "dependsOn": [],
+                        "policy": {
+                            "timeout": "0.12:00:00",
+                            "retry": 0,
+                            "retryIntervalInSeconds": 30,
+                            "secureOutput": false,
+                            "secureInput": false
+                        },
+                        "userProperties": [],
+                        "linkedServiceName": {
+                            "referenceName": "DataWarehouse",
+                            "type": "LinkedServiceReference"
+                        },
+                        "typeProperties": {
+                            "scripts": [
+                                {
+                                    "type": "Query",
+                                    "text": " /* TRUNCATE ALL TABLES IN A DATABASE */\nDECLARE @dropAndCreateConstraintsTable TABLE\n        (\n         DropStmt VARCHAR(MAX)\n        ,CreateStmt VARCHAR(MAX)\n        )\n/* Gather information to drop and then recreate the current foreign key constraints  */\nINSERT  @dropAndCreateConstraintsTable\n        SELECT  DropStmt = 'ALTER TABLE [' + ForeignKeys.ForeignTableSchema\n                + '].[' + ForeignKeys.ForeignTableName + '] DROP CONSTRAINT ['\n                + ForeignKeys.ForeignKeyName + ']; '\n               ,CreateStmt = 'ALTER TABLE [' + ForeignKeys.ForeignTableSchema\n                + '].[' + ForeignKeys.ForeignTableName\n                + '] WITH CHECK ADD CONSTRAINT [' + ForeignKeys.ForeignKeyName\n                + '] FOREIGN KEY([' + ForeignKeys.ForeignTableColumn\n                + ']) REFERENCES [' + SCHEMA_NAME(sys.objects.schema_id)\n                + '].[' + sys.objects.[name] + ']([' + sys.columns.[name]\n                + ']); '\n        FROM    sys.objects\n        INNER JOIN sys.columns\n                ON ( sys.columns.[object_id] = sys.objects.[object_id] )\n        INNER JOIN ( SELECT sys.foreign_keys.[name] AS ForeignKeyName\n                           ,SCHEMA_NAME(sys.objects.schema_id) AS ForeignTableSchema\n                           ,sys.objects.[name] AS ForeignTableName\n                           ,sys.columns.[name] AS ForeignTableColumn\n                           ,sys.foreign_keys.referenced_object_id AS referenced_object_id\n                           ,sys.foreign_key_columns.referenced_column_id AS referenced_column_id\n                     FROM   sys.foreign_keys\n                     INNER JOIN sys.foreign_key_columns\n                            ON ( sys.foreign_key_columns.constraint_object_id = sys.foreign_keys.[object_id] )\n                     INNER JOIN sys.objects\n                            ON ( sys.objects.[object_id] = sys.foreign_keys.parent_object_id )\n                     INNER JOIN sys.columns\n                            ON ( sys.columns.[object_id] = sys.objects.[object_id] )\n                               AND ( sys.columns.column_id = sys.foreign_key_columns.parent_column_id )\n                   ) ForeignKeys\n                ON ( ForeignKeys.referenced_object_id = sys.objects.[object_id] )\n                   AND ( ForeignKeys.referenced_column_id = sys.columns.column_id )\n        WHERE   ( sys.objects.[type] = 'U' )\n                AND ( sys.objects.[name] NOT IN ( 'sysdiagrams' ) )\n/* SELECT * FROM @dropAndCreateConstraintsTable AS DACCT  --Test statement*/\nDECLARE @DropStatement NVARCHAR(MAX)\nDECLARE @RecreateStatement NVARCHAR(MAX)\n/* Drop Constraints */\nDECLARE Cur1 CURSOR READ_ONLY\nFOR\n        SELECT  DropStmt\n        FROM    @dropAndCreateConstraintsTable\nOPEN Cur1\nFETCH NEXT FROM Cur1 INTO @DropStatement\nWHILE @@FETCH_STATUS = 0\n      BEGIN\n            PRINT 'Executing ' + @DropStatement\n            EXECUTE sp_executesql @DropStatement\n            FETCH NEXT FROM Cur1 INTO @DropStatement\n      END\nCLOSE Cur1\nDEALLOCATE Cur1\n/* Truncate all tables in the database in the dbo schema */\nDECLARE @DeleteTableStatement NVARCHAR(MAX)\nDECLARE Cur2 CURSOR READ_ONLY\nFOR\n        SELECT  'TRUNCATE TABLE [dbo].[' + TABLE_NAME + ']'\n        FROM    INFORMATION_SCHEMA.TABLES\n        WHERE   TABLE_SCHEMA = 'dbo'\n                AND TABLE_TYPE = 'BASE TABLE'\n  /* Change your schema appropriately if you don't want to use dbo */\nOPEN Cur2\nFETCH NEXT FROM Cur2 INTO @DeleteTableStatement\nWHILE @@FETCH_STATUS = 0\n      BEGIN\n            PRINT 'Executing ' + @DeleteTableStatement\n            EXECUTE sp_executesql @DeleteTableStatement\n            FETCH NEXT FROM Cur2 INTO @DeleteTableStatement\n      END\nCLOSE Cur2\nDEALLOCATE Cur2\n/* Recreate foreign key constraints  */\nDECLARE Cur3 CURSOR READ_ONLY\nFOR\n        SELECT  CreateStmt\n        FROM    @dropAndCreateConstraintsTable\nOPEN Cur3\nFETCH NEXT FROM Cur3 INTO @RecreateStatement\nWHILE @@FETCH_STATUS = 0\n      BEGIN\n            PRINT 'Executing ' + @RecreateStatement\n            EXECUTE sp_executesql @RecreateStatement\n            FETCH NEXT FROM Cur3 INTO @RecreateStatement\n      END\nCLOSE Cur3\nDEALLOCATE Cur3\nGO   "
+                                }
+                            ],
+                            "scriptBlockExecutionTimeout": "02:00:00"
+                        }
+                    }
+                ],
+                "policy": {
+                    "elapsedTimeMetric": {},
+                    "cancelAfter": {}
+                },
+                "folder": {
+                    "name": "EDS"
+                },
+                "annotations": [],
+                "lastPublishTime": "2023-02-21T21:25:56Z"
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/DataWarehouse')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSCSVTable')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SinkDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "SinkContainer": {
+                        "type": "string",
+                        "defaultValue": "input/EDS"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().SinkDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SinkContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/DelimitedText1')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "input/EDS"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": [
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    },
+                    {
+                        "type": "String"
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSCSVTableOut')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/EDS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "FileName": {
+                        "type": "string",
+                        "defaultValue": "@replace(item().name,'dbo.','')"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSDB')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "DataWarehouse",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "dbo",
+                    "table": "Adult_Classes"
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/DataWarehouse')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSDB2')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "DataWarehouse",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "TableName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "",
+                    "table": {
+                        "value": "@dataset().TableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/DataWarehouse')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDCSVTableOut2')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/EDS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    },
+                    "FileName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().FileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "firstRowAsHeader": true,
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/SourceDataset')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Connection to your source data store.",
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "fileName": {
+                        "type": "string"
+                    },
+                    "SourceContainer": {
+                        "type": "string"
+                    },
+                    "SourceDirectory": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "fileName": {
+                            "value": "@dataset().fileName",
+                            "type": "Expression"
+                        },
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseSinkDataset')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Connection to your destination data store.",
+                "linkedServiceName": {
+                    "referenceName": "DataWarehouse",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "sinkTableName": {
+                        "type": "string"
+                    }
+                },
+                "annotations": [],
+                "type": "AzureSqlTable",
+                "schema": [],
+                "typeProperties": {
+                    "schema": "",
+                    "table": {
+                        "value": "@dataset().sinkTableName",
+                        "type": "Expression"
+                    }
+                }
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/DataWarehouse')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GetMetadataDataset')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "description": "Connection to your source data store.",
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/EDS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "2023/02/11"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/GetMetaDataTest')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": "EDS/2023/02/12",
+                        "fileSystem": "output"
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        },
+        {
+            "name": "[concat(parameters('factoryName'), '/EDSCSVTableOut2')]",
+            "type": "Microsoft.DataFactory/factories/datasets",
+            "apiVersion": "2018-06-01",
+            "properties": {
+                "linkedServiceName": {
+                    "referenceName": "AzureDataLakeStorage1",
+                    "type": "LinkedServiceReference"
+                },
+                "parameters": {
+                    "SourceContainer": {
+                        "type": "string",
+                        "defaultValue": "output/EDS"
+                    },
+                    "SourceDirectory": {
+                        "type": "string",
+                        "defaultValue": "@concat(formatDateTime(utcnow(),'yyyy'),'/',formatDateTime(utcnow(),'MM'),'/',formatDateTime(utcnow(),'dd'),'/')"
+                    }
+                },
+                "annotations": [],
+                "type": "DelimitedText",
+                "typeProperties": {
+                    "location": {
+                        "type": "AzureBlobFSLocation",
+                        "folderPath": {
+                            "value": "@dataset().SourceDirectory",
+                            "type": "Expression"
+                        },
+                        "fileSystem": {
+                            "value": "@dataset().SourceContainer",
+                            "type": "Expression"
+                        }
+                    },
+                    "columnDelimiter": ",",
+                    "escapeChar": "\\",
+                    "quoteChar": "\""
+                },
+                "schema": []
+            },
+            "dependsOn": [
+                "[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+            ]
+        }
+    ]
+}

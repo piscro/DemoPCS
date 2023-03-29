@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "factoryName": {
+            "value": "PCS-Dev-DF01"
+        },
+        "SqlServer1_connectionString": {
+            "value": ""
+        },
+        "DataWarehouse_connectionString": {
+            "value": ""
+        },
+        "PCS_FocusDB_connectionString": {
+            "value": ""
+        },
+        "CohortDB_Copy_connectionString": {
+            "value": ""
+        },
+        "AzureDataLakeStorage1_properties_typeProperties_url": {
+            "value": "https://pcsdevstorage01.dfs.core.windows.net/"
+        },
+        "KeyVaultLS_properties_typeProperties_baseUrl": {
+            "value": "https://PcsDevKV.vault.azure.net/"
+        }
+    }
+}
