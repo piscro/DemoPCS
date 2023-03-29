@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "servers_pcs_dwh_svr_name": {
-            "value": pcs-dwh-svr
+            "value": "pcs-dwh-svr"
         }
     }
 }
