@@ -12,6 +12,7 @@ pool:
 
 steps:
 - script: |
+
 - task: AzureResourceManagerTemplateDeployment@3
   inputs:
     deploymentScope: 'Resource Group'
@@ -21,8 +22,5 @@ steps:
     resourceGroupName: 'DemoDevOps'
     location: 'East US'
     templateLocation: 'URL of the file'
-    csmFileLink: 'https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json'
+    csmFileLink: 'https://raw.githubusercontent.com/piscro/DemoPCS/main/EDS_DW_arm_template/template.json'
     deploymentMode: 'Incremental'
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
