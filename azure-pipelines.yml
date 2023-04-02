@@ -1,4 +1,5 @@
 # Starter pipeline
+
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
@@ -10,10 +11,19 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+- script: |
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'DevOpsSPN'
+    subscriptionId: '156859c7-c94a-4494-a2fd-f3fb88d2316d'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'DemoDevOps'
+    location: 'East US'
+    templateLocation: 'URL of the file'
+    csmFileLink: 'https://github.com/piscro/DemoPCS/tree/main/EDS_DW_arm_template/template.json'
+    csmParametersFileLink: 'https://github.com/piscro/DemoPCS/tree/main/EDS_DW_arm_template/parameters.json'
+    deploymentMode: 'Complete'
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
