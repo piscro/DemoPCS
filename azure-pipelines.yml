@@ -22,5 +22,5 @@ steps:
     resourceGroupName: 'DemoDevOps'
     location: 'East US'
     templateLocation: 'URL of the file'
-    csmFileLink: 'https://raw.githubusercontent.com/piscro/DemoPCS/main/EDS_DW_arm_template/template.json'
+    csmFileLink: 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/quickstarts/microsoft.datalakestore/yash-datalake/azuredeploy.json'
     deploymentMode: 'Incremental'
