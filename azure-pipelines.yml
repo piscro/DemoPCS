@@ -21,9 +21,8 @@ steps:
     resourceGroupName: 'DemoDevOps'
     location: 'East US'
     templateLocation: 'URL of the file'
-    csmFileLink: 'https://github.com/piscro/DemoPCS/tree/main/EDS_DW_arm_template/template.json'
-    csmParametersFileLink: 'https://github.com/piscro/DemoPCS/tree/main/EDS_DW_arm_template/parameters.json'
-    deploymentMode: 'Complete'
+    csmFileLink: 'https://github.com/Azure/azure-quickstart-templates/blob/master/quickstarts/microsoft.storage/storage-blob-container/azuredeploy.json'
+    deploymentMode: 'Incremental'
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
