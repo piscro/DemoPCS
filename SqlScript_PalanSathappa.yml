@@ -19,6 +19,6 @@ steps:
     SqlPassword: 'OgDE3v5W#8vb'
     deployType: 'DacpacTask'
     DeploymentAction: 'Publish'
-    DacpacFile: '/data_factory_arm_template/eds_script.sql'
+    SqlFile: '/data_factory_arm_template/eds_script.sql'
     IpDetectionMethod: 'AutoDetect'
 
