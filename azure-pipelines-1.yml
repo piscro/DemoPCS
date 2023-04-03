@@ -12,6 +12,12 @@ pool:
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'Get-AzTemplateSpec'
 
 - task: AzureCLI@2
   inputs:
@@ -19,7 +25,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      id = "/subscriptions/156859c7-c94a-4494-a2fd-f3fb88d2316d/resourceGroups/DemoDevOps/providers/Microsoft.Resources/templateSpecs/DWH_temp/versions/v5"
+      id = $(az ts show --name storageSpec --resource-group DemoDevOps --version "5.0a" --query "id")
       
       az deployment group create \
         --resource-group DemoDevOps \
