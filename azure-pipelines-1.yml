@@ -12,12 +12,6 @@ pool:
 steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'DevOpsSPN'
-    scriptType: 'ps'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'Get-AzTemplateSpec'
 
 - task: AzureCLI@2
   inputs:
