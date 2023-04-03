@@ -1,0 +1,26 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      id = "/subscriptions/156859c7-c94a-4494-a2fd-f3fb88d2316d/resourceGroups/DemoDevOps/providers/Microsoft.Resources/templateSpecs/DWH_temp/versions/v5"
+      
+      az deployment group create \
+        --resource-group DemoDevOps \
+        --template-spec $id
