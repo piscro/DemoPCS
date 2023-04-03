@@ -4,27 +4,21 @@
 trigger:
 - none
 
-variables:
-  serverName: 'azpipedbdemosvr.database.windows.net'
-  varazuresubscription : 'PCSDSM(6270c2d6-d30a-41ec-8edb-519b950de71b)'
-  databaseName: 'azpipedbdemo'
-  SqlUsername: 'pcsadmin'
-  SqlPassword: 'fX^%a^074Qua'
-  SqlFile: 'PCS_Workshop.sql'
-
 pool:
   vmImage: windows-latest
 
 steps:
 
-  - task: SqlAzureDacpacDeployment@1
-    inputs:
-      azureSubscription: 'PCSDSM (6270c2d6-d30a-41ec-8edb-519b950de71b)'
-      AuthenticationType: 'server'
-      ServerName: $(serverName)
-      DatabaseName: $(databaseName)
-      SqlUsername: $(SqlUsername)
-      SqlPassword: $(SqlPassword)
-      deployType: 'SqlTask'
-      SqlFile: $(SqlFile)
-      IpDetectionMethod: 'AutoDetect'
+- task: SqlAzureDacpacDeployment@1
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    AuthenticationType: 'server'
+    ServerName: 'auto-pcs-dwh-svr.database.windows.net'
+    DatabaseName: 'EDS'
+    SqlUsername: 'pcsdwadmin'
+    SqlPassword: 'OgDE3v5W#8vb'
+    deployType: 'DacpacTask'
+    DeploymentAction: 'Publish'
+    DacpacFile: '/data_factory_arm_template/eds_script.sql'
+    IpDetectionMethod: 'AutoDetect'
+
