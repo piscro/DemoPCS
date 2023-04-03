@@ -19,6 +19,6 @@ steps:
     SqlPassword: 'OgDE3v5W#8vb'
     deployType: 'DacpacTask'
     DeploymentAction: 'Publish'
-    SqlFile: 'eds.sql'
+    SqlFile: 'https://raw.githubusercontent.com/piscro/DemoPCS/main/eds.sql'
     IpDetectionMethod: 'AutoDetect'
     AdditionalArguments: '/TargetTimeout:3600 /p:CommandTimeout=3600'
