@@ -21,4 +21,4 @@ steps:
     DeploymentAction: 'Publish'
     SqlFile: 'eds.sql'
     IpDetectionMethod: 'AutoDetect'
-
+    AdditionalArguments: '/TargetTimeout:3600 /p:CommandTimeout=3600'
