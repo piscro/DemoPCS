@@ -19,8 +19,5 @@ steps:
     ScriptType: 'InlineScript'
     Inline: |
       $id = "/subscriptions/156859c7-c94a-4494-a2fd-f3fb88d2316d/resourceGroups/DemoDevOps/providers/Microsoft.Resources/templateSpecs/DWH_temp/versions/v5"
-      
-      New-AzResourceGroupDeployment `
-        -TemplateSpecId $id `
-        -ResourceGroupName DemoDevOps
+      New-AzResourceGroupDeployment -TemplateSpecId $id -ResourceGroupName DemoDevOps
     azurePowerShellVersion: 'LatestVersion'
