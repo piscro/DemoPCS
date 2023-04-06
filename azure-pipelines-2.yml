@@ -1,0 +1,52 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az resource delete \
+        --resource-group DemoDevOps \
+        --name auto-pcs-dwn-svr \
+        --resource-type "Microsoft.Sql/servers"
+      
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az resource delete \
+        --resource-group DemoDevOps \
+        --name EDS \
+        --resource-type "Microsoft.Sql/servers/databases"
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'DevOpsSPN'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az resource delete \
+        --resource-group DemoDevOps \
+        --name COHORT \
+        --resource-type "Microsoft.Sql/servers/databases"
