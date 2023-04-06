@@ -21,7 +21,7 @@ steps:
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'DevOpsSPN'
-    scriptType: 'bash'
+    scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az resource delete \
@@ -32,7 +32,7 @@ steps:
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'DevOpsSPN'
-    scriptType: 'bash'
+    scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az resource delete \
@@ -43,7 +43,7 @@ steps:
 - task: AzureCLI@2
   inputs:
     azureSubscription: 'DevOpsSPN'
-    scriptType: 'bash'
+    scriptType: 'pscore'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az resource delete \
