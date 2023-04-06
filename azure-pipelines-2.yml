@@ -24,7 +24,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az resource delete --resource-group DemoDevOps --name auto-pcs-dwn-svr --resource-type "Microsoft.Sql/servers"
+      az resource delete -g DemoDevOps -n auto-pcs-dwn-svr --resource-type "Microsoft.Sql/servers"
       
 - task: AzureCLI@2
   inputs:
@@ -32,7 +32,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az resource delete --resource-group DemoDevOps --name EDS --resource-type "Microsoft.Sql/servers/databases"
+      az resource delete -g DemoDevOps -n EDS --resource-type "Microsoft.Sql/servers/databases"
 
 - task: AzureCLI@2
   inputs:
@@ -40,4 +40,4 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az resource delete --resource-group DemoDevOps --name COHORT --resource-type "Microsoft.Sql/servers/databases"
+      az resource delete -g DemoDevOps -n COHORT --resource-type "Microsoft.Sql/servers/databases"
