@@ -13,15 +13,15 @@ pool:
 steps:
 - script: |
 
-- task: AzurePowerShell@5
+- task: AzureCLI@2
   inputs:
     azureSubscription: 'DevOpsSPN'
-    ScriptType: 'InlineScript'
-    Inline: |
-      $id = "/subscriptions/156859c7-c94a-4494-a2fd-f3fb88d2316d/resourceGroups/DemoDevOps/providers/Microsoft.Resources/templateSpecs/DWH_temp/versions/v5"
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      id = "/subscriptions/156859c7-c94a-4494-a2fd-f3fb88d2316d/resourceGroups/DemoDevOps/providers/Microsoft.Resources/templateSpecs/DWH_temp/versions/v5"
       
-      New-AzResourceGroupDeployment `
-        -TemplateSpecId $id `
-        -ResourceGroupName demoRG
-    azurePowerShellVersion: 'LatestVersion'
+      az deployment group create \
+        --resource-group DemoDevOps \
+        --template-spec $id
     
